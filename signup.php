@@ -12,13 +12,63 @@
   </head>
   <style>
       body{
-          background-color: #F7BFB4;
+          background-color: #1F1D36;
+          color: white;
+      }
+      h1{
+          color : white;
       }
   </style>
   <body>
     
     <?php 
+        // setting the variable values to default
+        $showalert = false;
+        $showerror = false;
+        // if server gets request method as post
+        if($_SERVER["REQUEST_METHOD"]== "POST"){            
+            include 'components/conn.php';
+            $username = $_POST["username"];
+            $password = $_POST["password"];
+            $cpassword = $_POST["cpassword"];
+            $exists = false;
+            //setting passwords to match
+            if (($password==$cpassword) && $exists == false){
+                //sql query to insert into the database
+                $sql = "INSERT INTO `users` ( `username`, `password`, `date`) VALUES ('$username', '$password', current_timestamp());";
+                //executing the sql query
+                $result = mysqli_query($conn,$sql);
+                // if query is successful then show the user green alert 
+                if ($result){
+                    $showalert = true;
+                }
+            }
+            else{
+                // if query not successful then show the user error message
+                $showerror = "Password don't match";
+            }  
+
+        }
+        
         require 'components/_nav.php'
+    ?>
+    <!-- alert message to showcase successful signup -->
+    <?php
+        if($showalert)
+            {    
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>SignUp Successful!</strong> Your account has been created successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+            }
+            // alert message for not succesful signup
+            if($showerror)
+            {    
+            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> '. $showerror.'
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>';
+            }
     ?>
     <!-- Making the sign up form  -->
     <div class="container col-sm-6">
@@ -27,7 +77,7 @@
         <form action = "/LoginSystem/signup.php" method = "Post">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="username" class="form-control" id="username" name = "username "aria-describedby="emailHelp"required> 
+                <input type="username" class="form-control" id="username" name = "username" aria-describedby="emailHelp"required> 
                 <div id="uname" class="form-text">We'll never share your information with anyone else.</div>
             </div>
             <div class="mb-3">
@@ -37,7 +87,7 @@
             </div>
             <div class="mb-3">
                 <label for="cpassword" class="form-label">Confirm Password</label>
-                <input type="cpassword" class="form-control" id="cpassword" name= "cpassword"required>
+                <input type="password" class="form-control" id="cpassword" name= "cpassword"required>
                 <div id="cpass" class="form-text">Please confrim Your password</div>
             </div>            
             <button type="submit" class="btn btn-primary">Sign Up</button>
