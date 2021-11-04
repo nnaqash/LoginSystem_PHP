@@ -33,17 +33,27 @@
             //$cpassword = $_POST["cpassword"];
             $exists = false;                      
             //sql query to insert into the database
-            $sql = "Select * from users where username='$username' AND password='$password'";
+            //$sql = "Select * from users where username='$username' AND password='$password'";
+            $sql = "Select * from users where username='$username'";
             //executing the sql query
             $result = mysqli_query($conn,$sql);
             $num = mysqli_num_rows($result);
             // if query is successful then show the user green alert 
             if ($num==1){
-                $login = true;
-                session_start();
-                $_SESSION['loggedin'] = true;
-                $_SESSION['username'] = $username;
-                header ("location: home.php");
+                while($row = mysqli_fetch_assoc($result)){
+                  if (password_verify($password,$row['password'])){
+                  $login = true;
+                  session_start();
+                  $_SESSION['loggedin'] = true;
+                  $_SESSION['username'] = $username;
+                  header ("location: home.php");
+                  }
+                  else{
+                    // if query not successful then show the user error message
+                    $showerror = "invalid username or password";
+                  }  
+                }
+                
             }            
             else{
                 // if query not successful then show the user error message

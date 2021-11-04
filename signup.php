@@ -28,25 +28,42 @@
         // if server gets request method as post
         if($_SERVER["REQUEST_METHOD"]== "POST"){            
             include 'components/conn.php';
+            //taking in the values entered by the user and stored in the variables
             $username = $_POST["username"];
             $password = $_POST["password"];
             $cpassword = $_POST["cpassword"];
-            $exists = false;
-            //setting passwords to match
-            if (($password==$cpassword) && $exists == false){
-                //sql query to insert into the database
-                $sql = "INSERT INTO `users` ( `username`, `password`, `date`) VALUES ('$username', '$password', current_timestamp());";
-                //executing the sql query
-                $result = mysqli_query($conn,$sql);
-                // if query is successful then show the user green alert 
-                if ($result){
-                    $showalert = true;
-                }
+            //$exists = false;
+            //$existsql= false;
+            // to see if the username is taken or no
+            $existsql = "SELECT * FROM  `users` WHERE username ='$username'";            
+            $result= mysqli_query($conn,$existsql);
+            //if the username exists on any other rows in the database
+            $numexistrows = mysqli_num_rows($result);
+            if($numexistrows>0){
+                //$exists = true;
+                $showerror = "username exists";
+
             }
-            else{
-                // if query not successful then show the user error message
-                $showerror = "Password don't match";
-            }  
+            else
+            {
+                $exists = false;            
+                //setting passwords to match
+                if (($password==$cpassword)){
+                    $hash = password_hash($password,PASSWORD_DEFAULT);
+                    //sql query to insert into the database
+                    $sql = "INSERT INTO `users` ( `username`, `password`, `date`) VALUES ('$username', '$hash', current_timestamp());";
+                    //executing the sql query
+                    $result = mysqli_query($conn,$sql);
+                    // if query is successful then show the user green alert 
+                    if ($result){
+                        $showalert = true;
+                    }
+                }
+                else{
+                    // if query not successful then show the user error message
+                    $showerror = "Password don't match";
+                }  
+            }
 
         }
         
@@ -77,12 +94,12 @@
         <form action = "/LoginSystem/signup.php" method = "Post">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="username" class="form-control" id="username" name = "username" aria-describedby="emailHelp"required> 
+                <input type="username" maxlength ="11" class="form-control" id="username" name = "username" aria-describedby="emailHelp"required> 
                 <div id="uname" class="form-text">We'll never share your information with anyone else.</div>
             </div>
             <div class="mb-3">
                 <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1" name= "password"required>
+                <input type="password" maxlength ="23" class="form-control" id="exampleInputPassword1" name= "password"required>
                 <div id="pass" class="form-text">Must have one uppercase and number in it.</div>
             </div>
             <div class="mb-3">
